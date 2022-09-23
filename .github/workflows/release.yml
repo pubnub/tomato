@@ -17,6 +17,8 @@ jobs:
         run: npm ci
       - name: Build all packages
         run: npm run build
+      - name: Test npm
+        run: npm whoami
       - name: Release
         run: npm publish --access public
         env:
