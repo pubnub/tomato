@@ -17,9 +17,7 @@ jobs:
         run: npm ci
       - name: Build all packages
         run: npm run build
-      - name: test
-        run: cat /home/runner/work/_temp/.npmrc
       - name: Release
-        run: npm publish
+        run: npm publish --access public
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
