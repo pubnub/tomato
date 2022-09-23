@@ -2,9 +2,6 @@ name: Release package
 
 on:
   workflow_dispatch:
-  
-env:
-  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
 jobs:
   release:
@@ -16,6 +13,8 @@ jobs:
         with:
           node-version: 16
           registry-url: 'https://registry.npmjs.org'
+      - name: Set authentication token
+        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > "$HOME/.npmrc"
       - name: Install dependencies
         run: npm ci
       - name: Build all packages
