@@ -9,7 +9,7 @@ import { IHttpOperation } from '@stoplight/types'
 import { File, FileSystem } from './file-system.js'
 import { Logger } from './logger/index.js'
 import { MockRequest } from '../interfaces.js'
-import { Settings } from './settings.js'
+import { Settings } from './settings/index.js'
 
 export class Spec {
   constructor(public source: File, public operations: IHttpOperation<false>[]) {}
@@ -56,7 +56,13 @@ export class Prism {
       Array.isArray(this.settings.openApiGlobs) ? this.settings.openApiGlobs.join(', ') : this.settings.openApiGlobs
     )
 
-    for (const source of await this.fs.readFiles(this.settings.openApiGlobs)) {
+    const sources = await this.fs.readFiles(this.settings.openApiGlobs)
+
+    if (sources.length === 0) {
+      this.logger.warn("Didn't find any specs.")
+    }
+
+    for (const source of sources) {
       this.logger.debug('Found spec "%s"', source.path)
 
       try {
@@ -75,7 +81,7 @@ export class Prism {
 
         this.logger.debug('Loaded spec "%s"', source.path)
       } catch (e) {
-        this.logger.error('Failed to parse spec "%s". Skipping...', source.path)
+        this.logger.warn('Failed to parse spec "%s". Skipping...', source.path)
       }
     }
   }

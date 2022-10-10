@@ -8,7 +8,7 @@ import { Prism } from '../prism.js'
 import { Instance } from '../runtime/instance.js'
 import { Runtime } from '../runtime/runtime.js'
 import { ScriptCache } from '../runtime/script-cache.js'
-import { Settings } from '../settings.js'
+import { Settings } from '../settings/index.js'
 
 export interface ServerState {
   expectations: {

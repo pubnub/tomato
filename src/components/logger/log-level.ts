@@ -24,3 +24,5 @@ export function levelToString(level: LogLevel) {
 export function stringToLevel(level: string) {
   return LogLevel[level]
 }
+
+export type LogLevelString = keyof typeof LogLevel

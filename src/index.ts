@@ -1,51 +1,39 @@
 #!/usr/bin/env node
 
 import 'reflect-metadata'
-import { container } from 'tsyringe'
-import { TypeScriptCompiler } from './components/compiler/typescript.js'
-import { FileSystem } from './components/file-system.js'
+import yargs from 'yargs'
+import { hideBin } from 'yargs/helpers'
 
-import { Logger, LogLevel } from './components/logger/index.js'
-import { Prism } from './components/prism.js'
-import { Runtime } from './components/runtime/runtime.js'
-import { ScriptCache } from './components/runtime/script-cache.js'
-import { Server } from './components/server/index.js'
-import { Settings } from './components/settings.js'
+import { serve } from './commands/serve.js'
 
-const VERSION = '0.0.1'
+const yarg = yargs(hideBin(process.argv))
+  .command(['serve', '$0'], 'start the mock server', (builder) =>
+    builder
+      .option('level', { alias: 'v', describe: 'logging verbosity level', type: 'count' })
+      .option('port', { alias: 'p', describe: 'port that the server will bind to', type: 'number' })
+      .option('contracts', { alias: 'C', describe: 'location of the contract files', type: 'array', string: true })
+      .option('openapi', { alias: 'O', describe: 'location of the OpenAPI specs', type: 'array', string: true })
+  )
+  .help()
+
+export type Argv = Awaited<typeof yarg.argv>
 
 async function main() {
-  try {
-    const settings = container.resolve(Settings)
-    await settings.loadFromFile()
+  const argv = await yarg.argv
 
-    const logger = new Logger({ level: LogLevel.info })
+  const [requestedCommand] = argv._
 
-    logger.info('Hello Tomato v%s', VERSION)
+  let command: 'serve'
+  switch (requestedCommand) {
+    case 'serve':
+    case undefined:
+    default:
+      command = 'serve'
+  }
 
-    container.resolve(FileSystem)
-    container.register('Compiler', TypeScriptCompiler)
-
-    container.registerInstance('PrismLogger', logger.child({ module: 'prism' }))
-    const prism = container.resolve(Prism)
-
-    await prism.loadSpecs()
-
-    container.registerInstance('CacheLogger', logger.child({ module: 'cache' }))
-    const scriptCache = container.resolve(ScriptCache)
-
-    container.registerInstance('RuntimeLogger', logger.child({ module: 'runtime' }))
-    const runtime = container.resolve(Runtime)
-
-    await scriptCache.loadScripts(runtime)
-
-    container.registerInstance('ServerLogger', logger.child({ module: 'server' }))
-    const server = container.resolve(Server)
-
-    await server.start()
-  } catch (e) {
-    console.error(`A fatal error has occured and Tomato has to exit.\n${e}`)
-    process.exit(1)
+  switch (command) {
+    case 'serve':
+      return await serve(argv)
   }
 }
 

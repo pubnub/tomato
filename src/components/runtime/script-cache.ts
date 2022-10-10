@@ -3,7 +3,7 @@ import { inject, singleton } from 'tsyringe'
 import { Compiler } from '../compiler/compiler.js'
 import { File, FileSystem } from '../file-system.js'
 import { Logger } from '../logger/index.js'
-import { Settings } from '../settings.js'
+import { Settings } from '../settings/settings.js'
 import { Runtime } from './runtime.js'
 import { Script } from './script.js'
 
@@ -40,7 +40,13 @@ export class ScriptCache {
         : this.settings.contractsGlobs
     )
 
-    for (const source of await this.fs.readFiles(this.settings.contractsGlobs)) {
+    const sources = await this.fs.readFiles(this.settings.contractsGlobs)
+
+    if (sources.length === 0) {
+      this.logger.warn("Didn't find any scripts.")
+    }
+
+    for (const source of sources) {
       this.logger.debug('Found script "%s"', source.path)
 
       try {
@@ -50,7 +56,7 @@ export class ScriptCache {
 
         this.logger.debug('Loaded script "%s"', script.name)
       } catch (e) {
-        this.logger.error(e, 'Failed to parse spec "%s". Skipping...', source.path)
+        this.logger.warn(e, 'Failed to parse script "%s". Skipping...', source.path)
       }
     }
   }
