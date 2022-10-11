@@ -14,14 +14,11 @@ export interface SettingsFile {
 
   env?: Record<string, string>
 
-  logging?: {
+  server?: {
     level?: LogLevelString
 
-    http?: {
-      level?: LogLevelString
-
-      details?: boolean
-    }
+    showDetails?: boolean
+    allowDynamicReload?: boolean
   }
 }
 

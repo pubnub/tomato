@@ -32,6 +32,14 @@ export class ScriptCache {
     return script
   }
 
+  async reloadScript(path: string, runtime: Runtime) {
+    this.logger.info('Trying to reload script "%s"', name)
+
+    const source = await this.fs.read(path)
+
+    this.loadScript(source, runtime)
+  }
+
   async loadScripts(runtime: Runtime) {
     this.logger.info(
       'Looking for contracts using a pattern "%s"',

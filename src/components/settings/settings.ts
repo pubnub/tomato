@@ -3,13 +3,11 @@ import { deepmerge } from 'deepmerge-ts'
 import { LogLevel, stringToLevel } from '../logger/log-level.js'
 import { SettingsFile } from './provider.js'
 
-export interface LoggingSettings {
+export interface ServerSettings {
   level: LogLevel
 
-  http: {
-    level: LogLevel
-    showDetails: boolean
-  }
+  showDetails: boolean
+  allowDynamicReload: boolean
 }
 
 const verbosityLevels = ['info', 'debug', 'trace']
@@ -22,7 +20,9 @@ export class Settings {
   public openApiGlobs: string | string[]
   public cwd: string
 
-  public logging: LoggingSettings
+  public level: LogLevel
+
+  public server: ServerSettings
 
   constructor(...inputs: SettingsFile[]) {
     const settings = deepmerge<SettingsFile[]>({}, ...inputs) as SettingsFile
@@ -35,14 +35,12 @@ export class Settings {
 
     this.cwd = process.cwd()
 
-    const verbosityLevel = verbosityLevels[settings.level] ?? 'info'
+    this.level = stringToLevel(verbosityLevels[settings.level] ?? 'info')
 
-    this.logging = {
-      level: stringToLevel(settings.level > 0 ? verbosityLevel : settings.logging?.level ?? 'info'),
-      http: {
-        level: stringToLevel(settings.logging?.http?.level ?? 'info'),
-        showDetails: settings.logging?.http?.details ?? false,
-      },
+    this.server = {
+      level: stringToLevel(settings.server?.level ?? 'info'),
+      showDetails: settings.server?.showDetails ?? false,
+      allowDynamicReload: settings.server?.allowDynamicReload ?? false,
     }
   }
 }

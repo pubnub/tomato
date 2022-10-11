@@ -61,7 +61,7 @@ export class Server {
     private prism: Prism
   ) {
     this.server = Fastify({
-      logger: logger.child({ module: 'http' }, { level: settings.logging.http.level }),
+      logger: logger.child({ module: 'http' }, { level: settings.server.level }),
     })
 
     this.server.setErrorHandler((error, request, reply) => {
@@ -120,6 +120,22 @@ export class Server {
         return this.state
       },
     })
+
+    if (this.settings.server.allowDynamicReload) {
+      this.server.route<{
+        Querystring: {
+          contract: string
+        }
+      }>({
+        method: ['GET'],
+        url: '/meta/reload',
+        handler: async (request, reply) => {
+          await this.scriptCache.reloadScript(request.query.contract, this.runtime)
+
+          return { ok: true }
+        },
+      })
+    }
 
     this.server.route({
       method: ['DELETE', 'GET', 'HEAD', 'PATCH', 'POST', 'PUT', 'OPTIONS', 'SEARCH', 'TRACE'],

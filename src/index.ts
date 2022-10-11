@@ -13,6 +13,11 @@ const yarg = yargs(hideBin(process.argv))
       .option('port', { alias: 'p', describe: 'port that the server will bind to', type: 'number' })
       .option('contracts', { alias: 'C', describe: 'location of the contract files', type: 'array', string: true })
       .option('openapi', { alias: 'O', describe: 'location of the OpenAPI specs', type: 'array', string: true })
+      .option('allow-dynamic-reload', {
+        alias: 'R',
+        describe: 'enables /reload endpoint that allows dynamic reloading of contract scripts',
+        type: 'boolean',
+      })
   )
   .help()
 
@@ -23,16 +28,9 @@ async function main() {
 
   const [requestedCommand] = argv._
 
-  let command: 'serve'
   switch (requestedCommand) {
     case 'serve':
-    case undefined:
     default:
-      command = 'serve'
-  }
-
-  switch (command) {
-    case 'serve':
       return await serve(argv)
   }
 }
