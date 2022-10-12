@@ -33,7 +33,7 @@ export class ScriptCache {
   }
 
   async reloadScript(path: string, runtime: Runtime) {
-    this.logger.info('Trying to reload script "%s"', name)
+    this.logger.info('Reloading script "%s"', path)
 
     const source = await this.fs.read(path)
 
@@ -66,6 +66,25 @@ export class ScriptCache {
       } catch (e) {
         this.logger.warn(e, 'Failed to parse script "%s". Skipping...', source.path)
       }
+    }
+
+    if (this.settings.watch) {
+      this.logger.info('Watching for changes...')
+      const watcher = await this.fs.watchFiles(this.settings.contractsGlobs)
+
+      const reload = async (path: string) => {
+        await this.reloadScript(path, runtime)
+      }
+
+      watcher.on('change', reload)
+      watcher.on('add', reload)
+      watcher.on('unlink', (path) => {
+        this.scripts.forEach((script) => {
+          if (script.source.path === path) {
+            this.scripts.delete(script.name)
+          }
+        })
+      })
     }
   }
 }

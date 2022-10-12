@@ -7,7 +7,7 @@ export interface ServerSettings {
   level: LogLevel
 
   showDetails: boolean
-  allowDynamicReload: boolean
+  enableMetaApi: boolean
 }
 
 const verbosityLevels = ['info', 'debug', 'trace']
@@ -24,6 +24,8 @@ export class Settings {
 
   public server: ServerSettings
 
+  public watch: boolean
+
   constructor(...inputs: SettingsFile[]) {
     const settings = deepmerge<SettingsFile[]>({}, ...inputs) as SettingsFile
 
@@ -33,14 +35,20 @@ export class Settings {
     this.contractsGlobs = settings.contracts ?? './contracts/**/*.ts'
     this.openApiGlobs = settings.openapi ?? './openapi/**/*.yaml'
 
-    this.cwd = process.cwd()
+    if (settings.cwd) {
+      process.chdir(settings.cwd)
+    }
+
+    this.cwd = settings.cwd ?? process.cwd()
 
     this.level = stringToLevel(verbosityLevels[settings.level] ?? 'info')
 
     this.server = {
       level: stringToLevel(settings.server?.level ?? 'info'),
       showDetails: settings.server?.showDetails ?? false,
-      allowDynamicReload: settings.server?.allowDynamicReload ?? false,
+      enableMetaApi: settings.server?.enableMetaApi ?? false,
     }
+
+    this.watch = settings.watch ?? false
   }
 }

@@ -67,7 +67,7 @@ export class Server {
     this.server.setErrorHandler((error, request, reply) => {
       this.logger.error(error)
 
-      this.currentInstance?.controller.dispose()
+      this.currentInstance.stop()
       this.currentInstance = null
 
       reply.status(500).send({ status: 500, error: error.message })
@@ -81,6 +81,11 @@ export class Server {
       method: 'GET',
       url: '/init',
       handler: async (request) => {
+        if (this.currentInstance) {
+          this.currentInstance.stop()
+          this.currentInstance = null
+        }
+
         if (!request.query.__contract__script__) {
           throw new Error('Missing __contract__script__ query param')
         }
@@ -121,7 +126,9 @@ export class Server {
       },
     })
 
-    if (this.settings.server.allowDynamicReload) {
+    if (this.settings.server.enableMetaApi) {
+      this.logger.info('Meta API is enabled!')
+
       this.server.route<{
         Querystring: {
           contract: string

@@ -13,13 +13,16 @@ export interface SettingsFile {
   openapi?: Array<string> | string
 
   env?: Record<string, string>
+  cwd?: string
 
   server?: {
     level?: LogLevelString
 
     showDetails?: boolean
-    allowDynamicReload?: boolean
+    enableMetaApi?: boolean
   }
+
+  watch?: boolean
 }
 
 @singleton()

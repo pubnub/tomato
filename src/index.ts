@@ -13,9 +13,9 @@ const yarg = yargs(hideBin(process.argv))
       .option('port', { alias: 'p', describe: 'port that the server will bind to', type: 'number' })
       .option('contracts', { alias: 'C', describe: 'location of the contract files', type: 'array', string: true })
       .option('openapi', { alias: 'O', describe: 'location of the OpenAPI specs', type: 'array', string: true })
-      .option('allow-dynamic-reload', {
-        alias: 'R',
-        describe: 'enables /reload endpoint that allows dynamic reloading of contract scripts',
+      .option('watch', {
+        alias: 'w',
+        describe: 'watches and reloads contracts and OpenAPI specs as they change on disk',
         type: 'boolean',
       })
   )

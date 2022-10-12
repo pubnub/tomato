@@ -1,9 +1,11 @@
 import { singleton } from 'tsyringe'
 
 import { readFile } from 'node:fs/promises'
-import { readFileSync, existsSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 import { dirname, resolve, extname, basename } from 'node:path'
+
 import fg from 'fast-glob'
+import { watch } from 'chokidar'
 
 export class File {
   get extension() {
@@ -55,5 +57,13 @@ export class FileSystem {
 
   async readFiles(globs: string | string[]) {
     return Promise.all((await fg(globs, { onlyFiles: true })).map((path) => this.read(path)))
+  }
+
+  async watchFiles(globs: string | string[]) {
+    const paths = await fg(globs, { onlyFiles: true })
+
+    const abspaths = paths.map((path) => resolve(process.cwd(), path))
+
+    return watch(abspaths, { ignoreInitial: true, persistent: true, cwd: process.cwd() })
   }
 }

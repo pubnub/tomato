@@ -19,7 +19,7 @@ export async function serve(argv: Argv) {
 
     container.registerInstance(Settings, settings)
 
-    const logger = new Logger({ level: LogLevel.info })
+    const logger = new Logger({ level: settings.level })
 
     logger.info('Hello Tomato v%s', VERSION)
 

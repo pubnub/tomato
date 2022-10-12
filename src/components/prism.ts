@@ -50,6 +50,31 @@ export class Prism {
     }
   }
 
+  async loadSpec(source: File) {
+    const document = parse(source.contents, (key, value) => {
+      if (key === '$ref' && typeof value === 'string' && value.startsWith('.')) {
+        return this.fs.resolveFromCwd(source.parentDirectory, value)
+      }
+
+      return value
+    })
+
+    const operations = await getHttpOperationsFromSpec(document)
+    const spec = new Spec(source, operations)
+
+    this.specs.set(source.path, spec)
+
+    return spec
+  }
+
+  async reloadSpec(path: string) {
+    this.logger.info('Reloading spec "%s"', path)
+
+    const source = await this.fs.read(path)
+
+    this.loadSpec(source)
+  }
+
   async loadSpecs() {
     this.logger.info(
       'Looking for OpenAPI specs using a pattern "%s"',
@@ -66,23 +91,27 @@ export class Prism {
       this.logger.debug('Found spec "%s"', source.path)
 
       try {
-        const document = parse(source.contents, (key, value) => {
-          if (key === '$ref' && typeof value === 'string' && value.startsWith('.')) {
-            return this.fs.resolveFromCwd(source.parentDirectory, value)
-          }
-
-          return value
-        })
-
-        const operations = await getHttpOperationsFromSpec(document)
-        const spec = new Spec(source, operations)
-
-        this.specs.set(source.path, spec)
+        await this.loadSpec(source)
 
         this.logger.debug('Loaded spec "%s"', source.path)
       } catch (e) {
         this.logger.warn('Failed to parse spec "%s". Skipping...', source.path)
       }
+    }
+
+    if (this.settings.watch) {
+      this.logger.info('Watching for changes...')
+      const watcher = await this.fs.watchFiles(this.settings.openApiGlobs)
+
+      const reload = async (path: string) => {
+        await this.reloadSpec(path)
+      }
+
+      watcher.on('change', reload)
+      watcher.on('add', reload)
+      watcher.on('unlink', (path) => {
+        this.specs.delete(path)
+      })
     }
   }
 }
