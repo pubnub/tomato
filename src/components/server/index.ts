@@ -67,7 +67,7 @@ export class Server {
     this.server.setErrorHandler((error, request, reply) => {
       this.logger.error(error)
 
-      this.currentInstance.stop()
+      this.currentInstance?.stop()
       this.currentInstance = null
 
       reply.status(500).send({ status: 500, error: error.message })
@@ -82,7 +82,7 @@ export class Server {
       url: '/init',
       handler: async (request) => {
         if (this.currentInstance) {
-          this.currentInstance.stop()
+          this.currentInstance?.stop()
           this.currentInstance = null
         }
 

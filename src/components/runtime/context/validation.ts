@@ -18,7 +18,13 @@ export class Matcher<D, T> {
   ): Assertion<D, A> {
     return (...args: A) =>
       (value: D) => {
-        const actual = this.lens(value)
+        let actual: T
+
+        try {
+          actual = this.lens(value)
+        } catch (e) {
+          throw new Error(`expected ${this.description} to ${message(...args)}, instead it's undefined`)
+        }
 
         if (!predicate(actual, ...args)) {
           const reason = `expected ${this.description} to ${message(...args)}, instead got ${JSON.stringify(actual)}`
@@ -87,6 +93,13 @@ export class StringMatcher<D> extends Matcher<D, string> {
   )
 
   asArray(separator: string) {
+    return new ArrayMatcher(
+      `${this.description} as array separated by ${separator}`,
+      this.zoom((value) => value.split(separator))
+    )
+  }
+
+  split(separator: string) {
     return new ArrayMatcher(
       `${this.description} as array separated by ${separator}`,
       this.zoom((value) => value.split(separator))

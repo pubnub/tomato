@@ -2,7 +2,7 @@ import { container } from 'tsyringe'
 import { TypeScriptCompiler } from '../components/compiler/typescript.js'
 import { FileSystem } from '../components/file-system.js'
 
-import { Logger, LogLevel } from '../components/logger/index.js'
+import { Logger } from '../components/logger/index.js'
 import { Prism } from '../components/prism.js'
 import { Runtime } from '../components/runtime/runtime.js'
 import { ScriptCache } from '../components/runtime/script-cache.js'
@@ -11,7 +11,7 @@ import { Settings } from '../components/settings/index.js'
 import { SettingsProvider } from '../components/settings/provider.js'
 import { Argv } from '../index.js'
 
-const VERSION = '1.1.0'
+const VERSION = '1.1.1'
 
 export async function serve(argv: Argv) {
   try {
