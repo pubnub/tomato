@@ -86,12 +86,26 @@ export class StringMatcher<D> extends Matcher<D, string> {
     (pattern) => `match a pattern ${pattern}`
   )
 
+  asArray(separator: string) {
+    return new ArrayMatcher(
+      `${this.description} as array separated by ${separator}`,
+      this.zoom((value) => value.split(separator))
+    )
+  }
+
   get asNumber() {
     return new NumberMatcher(
       this.description,
       this.zoom((value) => parseFloat(value))
     )
   }
+}
+
+export class ArrayMatcher<D, T> extends Matcher<D, Array<T>> {
+  contains = this.assert(
+    (actual, entries: T[]) => entries.every((element) => actual.includes(element)),
+    (entries) => `contain the following elements: ${entries.join(', ')}`
+  )
 }
 
 export class PathMatcher extends StringMatcher<MockRequest> {
@@ -125,13 +139,3 @@ export const assert = {
     status: new NumberMatcher<MockResponse>('status code', (res) => res.status),
   },
 }
-
-/*
-  assert.request.path.lastSegment.equals('"hello"') // expected last segment of path to equal "hello"
-  assert.request.path.matches('^/hello', 'i') // expected path to match /^\/hello/i
-  assert.request.path.startsWith('/v2/request/lmao') // expected path to start with '/v2/request/lmao'
-  assert.request.method.isOneOf(['GET', 'POST']) // expected method to be one of ["GET", "POST"]
-  assert.request.method.equals('POST') // expected method to equal "POST"
-  assert.request.query.lmao.equals('123') // expected query["lmao"] to equal "123"
-  assert.request.query.tt.asNumber.gt(10) // expected query["tt"] to be greater than 10
-*/

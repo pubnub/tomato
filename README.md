@@ -54,8 +54,8 @@ Asynchronous function that responds to a request.
 
 ##### Examples:
 
-    // expected last segment of path to equal 
-    assert.request.path.lastSegment.equals('"hello"')"hello"
+    // expected last segment of path to equal "hello"
+    assert.request.path.lastSegment.equals('"hello"')
 
     // expected path to match /^\/hello/i
     assert.request.path.matches('^/hello', 'i')

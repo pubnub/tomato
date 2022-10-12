@@ -1,13 +1,30 @@
-import * as Interfaces from './src/interfaces'
+import type { ExpectInterface, MockRequest, MockResponse } from './src/interfaces'
 import type { timetoken as _timetoken } from './src/components/runtime/context/timetoken'
-import type { assert as _assert } from './src/components/runtime/context/validation'
+import type {
+  NumberMatcher,
+  PathMatcher,
+  StringMatcher,
+  ArrayMatcher,
+} from './src/components/runtime/context/validation'
+
+type AssertInterface = {
+  request: {
+    path: PathMatcher
+    method: StringMatcher<MockRequest>
+    query: Record<string, StringMatcher<MockRequest>>
+    headers: Record<string, StringMatcher<MockRequest>>
+  }
+  response: {
+    status: NumberMatcher<MockResponse>
+  }
+}
 
 declare global {
-  var expect: Interfaces.ExpectInterface
+  var expect: ExpectInterface
   var timetoken: typeof _timetoken
-  var assert: typeof _assert
+  var assert: AssertInterface
 
   var json: (path: string) => any
 }
 
-export {}
+export type { NumberMatcher, StringMatcher, PathMatcher, ArrayMatcher, MockRequest, MockResponse, ExpectInterface }
