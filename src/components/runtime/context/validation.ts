@@ -133,6 +133,31 @@ export class PathMatcher extends StringMatcher<MockRequest> {
   }
 }
 
+export class BodyMatcher extends Matcher<MockRequest, unknown> {
+  equals = this.assert(
+    (actual, expected: unknown) => actual === expected,
+    (expected) => `equal ${expected}`
+  )
+
+  satisfies = this.assert(
+    (actual, _reason: string, predicate: (body: unknown) => boolean) => {
+      try {
+        return predicate(actual)
+      } catch (e) {
+        return false
+      }
+    },
+    (reason, _predicate) => `satisfy this predicate: ${reason}`
+  )
+
+  get asString() {
+    return new StringMatcher(
+      `${this.description} as string`,
+      this.zoom((body) => body.toString())
+    )
+  }
+}
+
 export const assert = {
   request: {
     path: new PathMatcher('path', (req) => req.url.path),
@@ -147,6 +172,7 @@ export const assert = {
         return new StringMatcher<MockRequest>(`header["${p.toString()}"]`, (req) => req.headers[p.toString()])
       },
     }),
+    body: new BodyMatcher('body', (req) => req.body),
   },
   response: {
     status: new NumberMatcher<MockResponse>('status code', (res) => res.status),
