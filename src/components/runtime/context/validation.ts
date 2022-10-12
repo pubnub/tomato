@@ -101,7 +101,7 @@ export class StringMatcher<D> extends Matcher<D, string> {
 
   split(separator: string) {
     return new ArrayMatcher(
-      `${this.description} as array separated by ${separator}`,
+      `${this.description} as array separated by "${separator}"`,
       this.zoom((value) => value.split(separator))
     )
   }
@@ -117,7 +117,7 @@ export class StringMatcher<D> extends Matcher<D, string> {
 export class ArrayMatcher<D, T> extends Matcher<D, Array<T>> {
   contains = this.assert(
     (actual, entries: T[]) => entries.every((element) => actual.includes(element)),
-    (entries) => `contain the following elements: ${entries.join(', ')}`
+    (entries) => `contain the following elements: ${JSON.stringify(entries)}`
   )
 }
 

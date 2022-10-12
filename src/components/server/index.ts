@@ -118,10 +118,6 @@ export class Server {
       method: 'GET',
       url: '/expect',
       handler: async (request, reply) => {
-        if (!this.currentInstance) {
-          throw new Error('No script instance running')
-        }
-
         return this.state
       },
     })
