@@ -5,6 +5,7 @@ import type {
   PathMatcher,
   StringMatcher,
   ArrayMatcher,
+  BodyMatcher,
 } from './src/components/runtime/context/validation'
 
 type AssertInterface = {
@@ -13,6 +14,7 @@ type AssertInterface = {
     method: StringMatcher<MockRequest>
     query: Record<string, StringMatcher<MockRequest>>
     headers: Record<string, StringMatcher<MockRequest>>
+    body: BodyMatcher
   }
   response: {
     status: NumberMatcher<MockResponse>
@@ -27,4 +29,4 @@ declare global {
   var json: (path: string) => any
 }
 
-export type { NumberMatcher, StringMatcher, PathMatcher, ArrayMatcher, MockRequest, MockResponse, ExpectInterface }
+export type { NumberMatcher, StringMatcher, PathMatcher, ArrayMatcher,BodyMatcher, MockRequest, MockResponse, ExpectInterface }
