@@ -26,7 +26,7 @@ export class Instance {
   }
 
   handleResolve = () => {
-    if (!this.isStopped) return
+    if (this.isStopped) return
 
     this.logger.info('Script resolved successfully.')
     this.controller.dispose()

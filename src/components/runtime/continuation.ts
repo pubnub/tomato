@@ -8,6 +8,8 @@ export class ContinuationController<I> {
   public isDisposed = false
   private continuations: Array<AnyRequest<I>> = []
 
+  private trackedDeferreds: Array<Deferred<any>> = []
+
   private get peek(): AnyRequest<I> {
     return this.continuations[this.continuations.length - 1]
   }
@@ -35,6 +37,7 @@ export class ContinuationController<I> {
       request = { type: 'push', next: new Deferred<I>() }
 
       this.continuations.push(request)
+      this.track(request.next)
     }
 
     request.next.resolve(value)
@@ -53,17 +56,22 @@ export class ContinuationController<I> {
       request = { type: 'pull', next: new Deferred<I>() }
 
       this.continuations.push(request)
+      this.track(request.next)
     }
 
     return request.next.promise
+  }
+
+  track(deferred: Deferred<any>) {
+    this.trackedDeferreds.push(deferred)
   }
 
   dispose() {
     if (!this.isDisposed) {
       this.isDisposed = true
 
-      for (const continuation of this.continuations) {
-        continuation.next.reject(new Error('Script has been disposed.'))
+      for (const deferred of this.trackedDeferreds) {
+        deferred.reject(new Error('Script has been disposed.'))
       }
     }
   }

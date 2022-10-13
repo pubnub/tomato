@@ -173,6 +173,7 @@ export class Server {
 
         const responseDeferred = new Deferred<MockResponse>()
 
+        this.currentInstance.controller.track(responseDeferred)
         this.currentInstance.controller.push({ value: mockRequest, respond: responseDeferred })
 
         const response = await responseDeferred.promise
