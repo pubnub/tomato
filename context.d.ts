@@ -1,23 +1,20 @@
 import type { ExpectInterface, MockRequest, MockResponse } from './src/interfaces'
 import type { timetoken as _timetoken } from './src/components/runtime/context/timetoken'
-import type {
-  NumberMatcher,
-  PathMatcher,
-  StringMatcher,
-  ArrayMatcher,
-  BodyMatcher,
-} from './src/components/runtime/context/validation'
+
+import type { StringMatcher } from './src/components/assertions/string-matcher'
+import type { UnknownMatcher } from './src/components/assertions/unknown-matcher'
+import type { RecordMatcher } from './src/components/assertions/record-matcher'
+import type { NumberMatcher } from './src/components/assertions/number-matcher'
+import type { ArrayMatcher } from './src/components/assertions/array-matcher'
+import type { BooleanMatcher } from './src/components/assertions/boolean-matcher'
 
 type AssertInterface = {
   request: {
-    path: PathMatcher
+    path: StringMatcher<MockRequest>
     method: StringMatcher<MockRequest>
-    query: Record<string, StringMatcher<MockRequest>>
-    headers: Record<string, StringMatcher<MockRequest>>
-    body: BodyMatcher
-  }
-  response: {
-    status: NumberMatcher<MockResponse>
+    query: RecordMatcher<MockRequest>
+    headers: RecordMatcher<MockRequest>
+    body: UnknownMatcher<MockRequest>
   }
 }
 
@@ -29,4 +26,13 @@ declare global {
   var json: (path: string) => any
 }
 
-export type { NumberMatcher, StringMatcher, PathMatcher, ArrayMatcher,BodyMatcher, MockRequest, MockResponse, ExpectInterface }
+export type {
+  NumberMatcher,
+  StringMatcher,
+  RecordMatcher,
+  ArrayMatcher,
+  BooleanMatcher,
+  MockRequest,
+  MockResponse,
+  ExpectInterface,
+}
