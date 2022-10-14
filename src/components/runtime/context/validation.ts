@@ -150,6 +150,36 @@ export class BodyMatcher extends Matcher<MockRequest, unknown> {
     (reason, _predicate) => `satisfy this predicate: ${reason}`
   )
 
+  deepEquals = this.assert(
+    (actual: object, expected: object) => this._isDeepEqual(expected, actual),
+    (expected) => `equal ${expected}`
+  )
+
+  _isDeepEqual(expected, actual): boolean {
+    const actualKeys = Object.keys(actual)
+    const expectedKeys = Object.keys(expected)
+
+    if (actualKeys.length !== expectedKeys.length) return false
+
+    for (var key of actualKeys) {
+      const actualValue = actual[key]
+      const expectedValue = expected[key]
+
+      const isObjects = this._isObject(actualValue) && this._isObject(expectedValue)
+
+      if (
+        (isObjects && !this._isDeepEqual(actualValue, expectedValue)) ||
+        (!isObjects && actualValue !== expectedValue)
+      ) {
+        return false
+      }
+    }
+    return true
+  }
+  _isObject(param) {
+    return param != null && typeof param === 'object'
+  }
+
   get asString() {
     return new StringMatcher(
       `${this.description} as string`,
