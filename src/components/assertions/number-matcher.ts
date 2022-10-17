@@ -1,4 +1,4 @@
-import { Matcher } from './matcher'
+import { Matcher } from './matcher.js'
 
 export class NumberMatcher<O> extends Matcher<O, number> {
   between = this.makeAssertion(

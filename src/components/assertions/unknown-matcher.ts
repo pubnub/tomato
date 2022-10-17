@@ -1,10 +1,10 @@
-import { Matcher } from './matcher'
-import { ArrayMatcher } from './array-matcher'
-import { BooleanMatcher } from './boolean-matcher'
-import { NumberMatcher } from './number-matcher'
-import { RecordMatcher } from './record-matcher'
-import { StringMatcher } from './string-matcher'
-import { AssertionError } from './assertion-error'
+import { Matcher } from './matcher.js'
+import { ArrayMatcher } from './array-matcher.js'
+import { BooleanMatcher } from './boolean-matcher.js'
+import { NumberMatcher } from './number-matcher.js'
+import { RecordMatcher } from './record-matcher.js'
+import { StringMatcher } from './string-matcher.js'
+import { AssertionError } from './assertion-error.js'
 
 function assertRecord(value: unknown): value is Record<string, any> {
   if (typeof value !== 'object' || value === null || value === undefined) {

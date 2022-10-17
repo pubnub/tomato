@@ -1,5 +1,5 @@
-import { Matcher } from './matcher'
-import { UnknownMatcher } from './unknown-matcher'
+import { Matcher } from './matcher.js'
+import { UnknownMatcher } from './unknown-matcher.js'
 
 import { deepStrictEqual } from 'assert'
 

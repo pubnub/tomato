@@ -1,4 +1,4 @@
-import { AssertionError } from './assertion-error'
+import { AssertionError } from './assertion-error.js'
 
 export type Lens<I, O> = (value: I) => O
 export type Predicate<T> = (value: T) => boolean

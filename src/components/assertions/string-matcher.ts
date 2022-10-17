@@ -1,6 +1,6 @@
-import { Matcher } from './matcher'
-import { ArrayMatcher } from './array-matcher'
-import { NumberMatcher } from './number-matcher'
+import { Matcher } from './matcher.js'
+import { ArrayMatcher } from './array-matcher.js'
+import { NumberMatcher } from './number-matcher.js'
 
 export class StringMatcher<O> extends Matcher<O, string> {
   startsWith = this.makeAssertion(

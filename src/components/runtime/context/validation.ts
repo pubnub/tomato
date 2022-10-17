@@ -1,7 +1,7 @@
 import { MockRequest } from '../../../interfaces'
-import { RecordMatcher } from '../../assertions/record-matcher'
-import { StringMatcher } from '../../assertions/string-matcher'
-import { UnknownMatcher } from '../../assertions/unknown-matcher'
+import { StringMatcher } from '../../assertions/string-matcher.js'
+import { UnknownMatcher } from '../../assertions/unknown-matcher.js'
+import { RecordMatcher } from '../../assertions/record-matcher.js'
 
 export const assert = {
   request: {

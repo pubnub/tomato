@@ -1,5 +1,5 @@
-import { Matcher } from './matcher'
-import { UnknownMatcher } from './unknown-matcher'
+import { Matcher } from './matcher.js'
+import { UnknownMatcher } from './unknown-matcher.js'
 
 export class ArrayMatcher<O> extends Matcher<O, any[]> {
   contains = this.makeAssertion(
