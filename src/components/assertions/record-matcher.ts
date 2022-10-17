@@ -1,7 +1,8 @@
-import { Matcher } from './matcher.js'
+import { Lens, Matcher } from './matcher.js'
 import { UnknownMatcher } from './unknown-matcher.js'
 
 import { deepStrictEqual } from 'assert'
+import { StringMatcher } from './string-matcher.js'
 
 export class RecordMatcher<O> extends Matcher<O, Record<string, any>> {
   key(key: string) {
@@ -23,4 +24,16 @@ export class RecordMatcher<O> extends Matcher<O, Record<string, any>> {
     },
     (other) => `deep equal ${JSON.stringify(other)}`
   )
+}
+
+export class RecordProxyMatcher<O> {
+  [key: string]: StringMatcher<O>
+
+  constructor(description: string, lens: Lens<O, Record<string, any>>) {
+    return new Proxy(this, {
+      get(target, p, receiver) {
+        return new StringMatcher(`${description}[${p.toString()}]`, (v: O) => lens(v)[p.toString()])
+      },
+    })
+  }
 }

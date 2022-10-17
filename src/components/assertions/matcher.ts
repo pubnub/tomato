@@ -9,11 +9,7 @@ export function combine<A, B, C>(first: Lens<A, B>, second: Lens<B, C>): Lens<A,
 }
 
 export class Matcher<O, T> {
-  constructor(
-    protected description: string,
-    protected lens: Lens<O, T>,
-    protected resultLens: Lens<boolean, boolean> = (value) => value
-  ) {}
+  constructor(protected description: string, protected lens: Lens<O, T>) {}
 
   protected zoom<V>(lens: Lens<T, V>): Lens<O, V> {
     return combine(this.lens, lens)
@@ -31,7 +27,7 @@ export class Matcher<O, T> {
         }
       }
 
-      const result = this.resultLens(!predicate(actual))
+      const result = !predicate(actual)
 
       if (result) {
         const reason = `expected ${this.description} to ${message}, instead got ${JSON.stringify(actual)}`
