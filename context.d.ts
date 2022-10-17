@@ -12,8 +12,10 @@ type AssertInterface = {
   request: {
     path: StringMatcher<MockRequest>
     method: StringMatcher<MockRequest>
-    query: RecordMatcher<MockRequest>
-    headers: RecordMatcher<MockRequest>
+    query: Record<string, StringMatcher<MockRequest>>
+    headers: Record<string, StringMatcher<MockRequest>>
+    $query: RecordMatcher<MockRequest>
+    $headers: RecordMatcher<MockRequest>
     body: UnknownMatcher<MockRequest>
   }
 }
