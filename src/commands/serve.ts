@@ -11,7 +11,7 @@ import { Settings } from '../components/settings/index.js'
 import { SettingsProvider } from '../components/settings/provider.js'
 import { Argv } from '../index.js'
 
-const VERSION = '1.2.2'
+const VERSION = '1.3.1'
 
 export async function serve(argv: Argv) {
   try {
