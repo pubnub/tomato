@@ -1,4 +1,4 @@
-import { MockRequest } from '../../../interfaces'
+import { MockRequest } from '../../../interfaces.js'
 import { StringMatcher } from '../../assertions/string-matcher.js'
 import { UnknownMatcher } from '../../assertions/unknown-matcher.js'
 import { RecordMatcher } from '../../assertions/record-matcher.js'
