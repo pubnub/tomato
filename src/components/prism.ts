@@ -11,6 +11,10 @@ import { Logger } from './logger/index.js'
 import { MockRequest } from '../interfaces.js'
 import { Settings } from './settings/index.js'
 
+export function isPrismError(e: unknown): e is Error & { detail: string } {
+  return typeof e === 'object' && e !== null && 'detail' in e
+}
+
 export class Spec {
   constructor(public source: File, public operations: IHttpOperation<false>[]) {}
 }
@@ -76,6 +80,11 @@ export class Prism {
   }
 
   async loadSpecs() {
+    if (!this.settings.openApiGlobs) {
+      this.logger.info('Skipping OpenAPI validation...')
+      return
+    }
+
     this.logger.info(
       'Looking for OpenAPI specs using a pattern "%s"',
       Array.isArray(this.settings.openApiGlobs) ? this.settings.openApiGlobs.join(', ') : this.settings.openApiGlobs

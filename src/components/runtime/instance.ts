@@ -32,7 +32,7 @@ export class Instance {
     this.controller.dispose()
   }
 
-  handleReject = (e) => {
+  handleReject = (e: any) => {
     if (this.isStopped) return
 
     if (e !== expectedFailure) {

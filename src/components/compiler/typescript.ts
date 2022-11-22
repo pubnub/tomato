@@ -18,7 +18,7 @@ export class TypeScriptCompiler implements Compiler {
 
       return new CompiledFile(source, outputText)
     } catch (e) {
-      throw new Error(`TypeScript compilation failed: ${e.message}`)
+      throw new Error(`TypeScript compilation failed: ${e instanceof Error ? e.message : e}`)
     }
   }
 }

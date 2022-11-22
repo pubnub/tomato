@@ -17,7 +17,7 @@ export class Settings {
   public env: Record<string, string>
 
   public contractsGlobs: string | string[]
-  public openApiGlobs: string | string[]
+  public openApiGlobs?: string | string[]
   public cwd: string
 
   public level: LogLevel
@@ -33,7 +33,7 @@ export class Settings {
     this.env = deepmerge({}, process.env, settings.env ?? {})
 
     this.contractsGlobs = settings.contracts ?? './contracts/**/*.ts'
-    this.openApiGlobs = settings.openapi ?? './openapi/**/*.yaml'
+    this.openApiGlobs = settings.openapi
 
     if (settings.cwd) {
       process.chdir(settings.cwd)
@@ -41,7 +41,7 @@ export class Settings {
 
     this.cwd = settings.cwd ?? process.cwd()
 
-    this.level = stringToLevel(verbosityLevels[settings.level] ?? 'info')
+    this.level = stringToLevel(verbosityLevels[settings.level ?? 0] ?? 'info')
 
     this.server = {
       level: stringToLevel(settings.server?.level ?? 'info'),

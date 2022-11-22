@@ -24,6 +24,7 @@ export interface Context {
   exports: {
     name?: string
     default?: () => Promise<void>
+    [key: string]: any
   }
 
   process: {
@@ -75,8 +76,14 @@ export class Runtime {
           predicate(value)
         } catch (e) {
           anyExpectationsFailed = true
-          logger.error(`Expectation for "${description}" failed: ${e.message}`)
-          serverState?.expectations?.failed?.push(`${description}: ${e.message}`)
+
+          if (e instanceof Error) {
+            logger.error(`Expectation for "${description}" failed: ${e.message}`)
+            serverState?.expectations?.failed?.push(`${description}: ${e.message}`)
+          } else {
+            logger.error(`Expectation for "${description}" failed: ${e}`)
+            serverState?.expectations?.failed?.push(`${description}: ${e}`)
+          }
         }
       }
 
@@ -152,7 +159,7 @@ export class Runtime {
 
       const module = this.moduleCache.loadModule(dependencySource, this)
 
-      return module.exports
+      return module?.exports
     }
 
     const json = (path: string) => {

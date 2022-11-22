@@ -8,7 +8,7 @@ export enum LogLevel {
   silent = Infinity,
 }
 
-export const colorMap = {
+export const colorMap: Record<LogLevel, 'dim' | 'reset' | 'yellow' | 'red'> = {
   [LogLevel.trace]: 'dim',
   [LogLevel.debug]: 'dim',
   [LogLevel.info]: 'reset',
@@ -21,8 +21,8 @@ export function levelToString(level: LogLevel) {
   return LogLevel[level]
 }
 
-export function stringToLevel(level: string) {
-  return LogLevel[level]
+export function stringToLevel(level: string): LogLevel {
+  return LogLevel[level as any] as any
 }
 
 export type LogLevelString = keyof typeof LogLevel
