@@ -21,18 +21,18 @@ export class Matcher<O, T> {
 
       try {
         actual = this.lens(value)
+
+        const result = !predicate(actual)
+
+        if (result) {
+          const reason = `expected ${this.description} to ${message}, instead got ${JSON.stringify(actual)}`
+
+          throw new AssertionError(reason)
+        }
       } catch (e) {
         if (e instanceof AssertionError) {
           throw new AssertionError(`expected ${this.description} to ${e.message}`)
         }
-      }
-
-      const result = !predicate(actual)
-
-      if (result) {
-        const reason = `expected ${this.description} to ${message}, instead got ${JSON.stringify(actual)}`
-
-        throw new AssertionError(reason)
       }
     }
   }

@@ -16,14 +16,14 @@ export class Script extends Module {
       return Object.keys(this.context.exports)[0]
     }
 
-    return this.context.exports.name
+    return this.context.exports.name ?? '<unknown-name>'
   }
 
   getClosure(context: Context) {
     this.vm.runInContext(context)
 
     if (this.isLegacy) {
-      return context.exports[this.name].consumerContract
+      return context.exports[this.name!].consumerContract
     }
 
     return context.exports.default

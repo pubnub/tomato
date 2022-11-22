@@ -4,7 +4,7 @@ import { MockResponse } from '../../interfaces.js'
 import { Deferred } from '../deferred.js'
 
 import { Logger } from '../logger/index.js'
-import { Prism } from '../prism.js'
+import { isPrismError, Prism } from '../prism.js'
 import { Instance } from '../runtime/instance.js'
 import { Runtime } from '../runtime/runtime.js'
 import { ScriptCache } from '../runtime/script-cache.js'
@@ -36,7 +36,7 @@ export class Server {
 
     validations: [],
 
-    script: null,
+    script: undefined,
   }
 
   private clearServerState() {
@@ -49,7 +49,7 @@ export class Server {
 
       validations: [],
 
-      script: null,
+      script: undefined,
     }
   }
 
@@ -68,7 +68,7 @@ export class Server {
       this.logger.error(error)
 
       this.currentInstance?.stop()
-      this.currentInstance = null
+      this.currentInstance = undefined
 
       reply.status(500).send({ status: 500, error: error.message })
     })
@@ -83,7 +83,7 @@ export class Server {
       handler: async (request) => {
         if (this.currentInstance) {
           this.currentInstance?.stop()
-          this.currentInstance = null
+          this.currentInstance = undefined
         }
 
         if (!request.query.__contract__script__) {
@@ -160,15 +160,19 @@ export class Server {
           body: request.body,
         }
 
-        try {
-          const result = await this.prism.validate(mockRequest)
+        if (this.settings.openApiGlobs) {
+          try {
+            const result = await this.prism.validate(mockRequest)
 
-          for (const validation of result.input) {
-            this.state.validations.push(`\`req.${validation.path.join('.')}\` ${validation.message}`)
+            for (const validation of result.input) {
+              this.state.validations.push(`\`req.${validation?.path?.join('.')}\` ${validation.message}`)
+            }
+          } catch (e) {
+            if (isPrismError(e)) {
+              this.state.validations.push(e.detail)
+              this.logger.warn(`OpenAPI validation failed: ${e.detail}`)
+            }
           }
-        } catch (e) {
-          this.state.validations.push(e.detail)
-          this.logger.warn(`OpenAPI validation failed: ${e.detail}`)
         }
 
         const responseDeferred = new Deferred<MockResponse>()

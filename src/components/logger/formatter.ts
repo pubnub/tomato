@@ -38,10 +38,10 @@ export function formatter(data: Record<string, unknown>): string {
 
   if (!data.err && data.res && numberExists(data.res, 'statusCode')) {
     let status = data.res.statusCode
-    let color = status < 200 || status > 299 ? 'red' : 'green'
+    let color: 'red' | 'green' = status < 200 || status > 299 ? 'red' : 'green'
 
     if (numberExists(data, 'responseTime')) {
-      line += `${c[color](status)} ${c.italic(data.responseTime.toFixed(4))}ms `
+      line += `${c[color](`${status}`)} ${c.italic(data.responseTime.toFixed(4))}ms `
     }
   }
 
