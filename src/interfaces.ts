@@ -1,20 +1,3 @@
-export interface ExpectInterface {
-  (params: ExpectParams): Promise<RespondInterface>
-}
-
-export interface ValidationFunction {
-  (request: MockRequest): void
-}
-
-export interface ExpectParams {
-  description: string
-  validations: ValidationFunction[]
-}
-
-export interface RespondInterface {
-  respond(response: MockResponse): Promise<void>
-}
-
 export interface MockResponse {
   status: number
 
@@ -34,3 +17,20 @@ export interface MockRequest {
 
   body?: any
 }
+
+export interface ExpectInterface {
+  (params: ExpectParams): Promise<RespondInterface>
+}
+
+export interface ValidationFunction {
+  (request: MockRequest): void
+}
+
+export interface ExpectParams {
+  description: string
+  validations: ValidationFunction[]
+}
+
+export type RespondInterface = {
+  respond(response: MockResponse): Promise<void>
+} & MockRequest

@@ -6,7 +6,7 @@ import { Compiler, CompiledFile } from './compiler.js'
 export class TypeScriptCompiler implements Compiler {
   static compilerOptions: ts.CompilerOptions = {
     module: ts.ModuleKind.CommonJS,
-    target: ts.ScriptTarget.ES2020,
+    target: ts.ScriptTarget.ESNext,
   }
 
   compile(source: File) {

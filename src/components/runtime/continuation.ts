@@ -72,6 +72,11 @@ export class ContinuationController<I> {
 
       for (const deferred of this.trackedDeferreds) {
         deferred.reject(new Error('Script has been disposed.'))
+        deferred.dispose()
+      }
+
+      for (const continuation of this.continuations) {
+        continuation.next.dispose()
       }
     }
   }

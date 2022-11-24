@@ -1,5 +1,7 @@
-import Fastify, { FastifyInstance } from 'fastify'
+import Fastify, { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
+
 import { inject, singleton } from 'tsyringe'
+
 import { MockResponse } from '../../interfaces.js'
 import { Deferred } from '../deferred.js'
 
@@ -9,6 +11,12 @@ import { Instance } from '../runtime/instance.js'
 import { Runtime } from '../runtime/runtime.js'
 import { ScriptCache } from '../runtime/script-cache.js'
 import { Settings } from '../settings/index.js'
+
+function handleCors(res: FastifyReply) {
+  res.header('Access-Control-Allow-Origin', '*')
+  // res.header('Access-Control-Allow-Methods', ['DELETE', 'GET', 'HEAD', 'PATCH', 'POST', 'PUT', 'OPTIONS', 'SEARCH', 'TRACE'].join(','))
+  res.header('Access-Control-Allow-Headers', '*')
+}
 
 export interface ServerState {
   expectations: {
@@ -60,6 +68,7 @@ export class Server {
     private scriptCache: ScriptCache,
     private prism: Prism
   ) {
+    // TODO: fix fastify shitty logging
     this.server = Fastify({
       logger: logger.child({ module: 'http' }, { level: settings.server.level }),
     })
@@ -80,7 +89,9 @@ export class Server {
     }>({
       method: 'GET',
       url: '/init',
-      handler: async (request) => {
+      handler: async (request, reply) => {
+        handleCors(reply)
+
         if (this.currentInstance) {
           this.currentInstance?.stop()
           this.currentInstance = undefined
@@ -118,6 +129,7 @@ export class Server {
       method: 'GET',
       url: '/expect',
       handler: async (request, reply) => {
+        handleCors(reply)
         return this.state
       },
     })
@@ -133,6 +145,8 @@ export class Server {
         method: ['GET'],
         url: '/meta/reload',
         handler: async (request, reply) => {
+          handleCors(reply)
+
           await this.scriptCache.reloadScript(request.query.contract, this.runtime)
 
           return { ok: true }
@@ -144,6 +158,8 @@ export class Server {
       method: ['DELETE', 'GET', 'HEAD', 'PATCH', 'POST', 'PUT', 'OPTIONS', 'SEARCH', 'TRACE'],
       url: '*',
       handler: async (request, reply) => {
+        handleCors(reply)
+
         if (!this.currentInstance) {
           throw new Error('No script instance running')
         }
@@ -177,7 +193,6 @@ export class Server {
 
         const responseDeferred = new Deferred<MockResponse>()
 
-        this.currentInstance.controller.track(responseDeferred)
         this.currentInstance.controller.push({ value: mockRequest, respond: responseDeferred })
 
         const response = await responseDeferred.promise
@@ -189,6 +204,8 @@ export class Server {
         if (response.headers) {
           reply.headers(response.headers)
         }
+
+        responseDeferred.dispose()
 
         return JSON.stringify(response.body ?? {})
       },

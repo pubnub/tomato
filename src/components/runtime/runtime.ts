@@ -48,6 +48,9 @@ export interface Context {
   expect: ExpectInterface
   require: (identifier: string) => any
   json: (path: string) => any
+
+  setTimeout: typeof setTimeout
+  performance: typeof performance
 }
 
 @injectable()
@@ -95,6 +98,7 @@ export class Runtime {
       serverState?.expectations?.succeeded?.push(description)
 
       return {
+        ...value,
         async respond(response: MockResponse) {
           return respond.resolve(response)
         },
@@ -103,7 +107,7 @@ export class Runtime {
 
     const legacyExpect = (description: string) => ({
       verify: async (f: (req: any) => boolean | void) => {
-        const req = await expect({
+        const { respond, ...rest } = await expect({
           description,
           validations: [
             (req) =>
@@ -118,8 +122,9 @@ export class Runtime {
         })
 
         return {
+          ...rest,
           async respond(status: number, headers: Record<string, string>, body: any) {
-            return req.respond({
+            return respond({
               status,
               headers: headers,
               body: body,
@@ -182,6 +187,8 @@ export class Runtime {
         trace: (...args: any[]) => logger.trace(format(...args)),
       },
       timetoken: timetoken,
+      setTimeout: setTimeout,
+      performance: performance,
       assert: assert,
       expect: expect,
       require: require,
