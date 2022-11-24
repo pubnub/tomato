@@ -39,7 +39,7 @@ export async function serve(argv: Argv) {
 
     await scriptCache.loadScripts(runtime)
 
-    container.registerInstance('ServerLogger', logger.child({ module: 'server' }))
+    container.registerInstance('ServerLogger', logger.child({ module: 'server' }, { level: settings.server.level }))
     const server = container.resolve(Server)
 
     await server.start()
