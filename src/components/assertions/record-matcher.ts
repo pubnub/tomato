@@ -8,7 +8,8 @@ export class RecordMatcher<O> extends Matcher<O, Record<string, any>> {
   key(key: string) {
     return new UnknownMatcher<O>(
       `${this.description}.${key}`,
-      this.zoom((value) => value[key])
+      this.zoom((value) => value[key]),
+      this.reverseLens
     )
   }
 

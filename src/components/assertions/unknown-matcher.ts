@@ -40,35 +40,40 @@ export class UnknownMatcher<O> extends Matcher<O, unknown> {
   get asRecord() {
     return new RecordMatcher<O>(
       this.description,
-      this.zoom((value) => (assertRecord(value), value))
+      this.zoom((value) => (assertRecord(value), value)),
+      this.reverseLens
     )
   }
 
   get asArray() {
     return new ArrayMatcher<O>(
       this.description,
-      this.zoom((value) => (assertArray(value), value))
+      this.zoom((value) => (assertArray(value), value)),
+      this.reverseLens
     )
   }
 
   get asString() {
     return new StringMatcher<O>(
       this.description,
-      this.zoom((value) => (assertString(value), value))
+      this.zoom((value) => (assertString(value), value)),
+      this.reverseLens
     )
   }
 
   get asNumber() {
     return new NumberMatcher<O>(
       this.description,
-      this.zoom((value) => (assertNumber(value), value))
+      this.zoom((value) => (assertNumber(value), value)),
+      this.reverseLens
     )
   }
 
   get asBoolean() {
     return new BooleanMatcher<O>(
       this.description,
-      this.zoom((value) => (assertBoolean(value), value))
+      this.zoom((value) => (assertBoolean(value), value)),
+      this.reverseLens
     )
   }
 }

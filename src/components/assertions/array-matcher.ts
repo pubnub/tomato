@@ -8,6 +8,10 @@ export class ArrayMatcher<O> extends Matcher<O, any[]> {
   )
 
   nth(index: number) {
-    return new UnknownMatcher<O>(`${this.description}[${index}]`, (value) => Array.isArray(value) && value[index])
+    return new UnknownMatcher<O>(
+      `${this.description}[${index}]`,
+      (value) => Array.isArray(value) && value[index],
+      this.reverseLens
+    )
   }
 }

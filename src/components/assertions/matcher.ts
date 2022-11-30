@@ -9,7 +9,11 @@ export function combine<A, B, C>(first: Lens<A, B>, second: Lens<B, C>): Lens<A,
 }
 
 export class Matcher<O, T> {
-  constructor(protected description: string, protected lens: Lens<O, T>) {}
+  constructor(
+    protected description: string,
+    protected lens: Lens<O, T>,
+    protected reverseLens: Lens<boolean, boolean> = (result) => result
+  ) {}
 
   protected zoom<V>(lens: Lens<T, V>): Lens<O, V> {
     return combine(this.lens, lens)
@@ -17,12 +21,10 @@ export class Matcher<O, T> {
 
   protected assert(predicate: Predicate<T>, message: string) {
     return (value: O) => {
-      let actual: T
-
       try {
-        actual = this.lens(value)
+        let actual = this.lens(value)
 
-        const result = !predicate(actual)
+        const result = !this.reverseLens(predicate(actual))
 
         if (result) {
           const reason = `expected ${this.description} to ${message}, instead got ${JSON.stringify(actual)}`
@@ -31,7 +33,9 @@ export class Matcher<O, T> {
         }
       } catch (e) {
         if (e instanceof AssertionError) {
-          throw new AssertionError(`expected ${this.description} to ${e.message}`)
+          throw e
+        } else {
+          throw new Error(`Failure occured during verifying assertions: ${e}`)
         }
       }
     }
@@ -55,12 +59,43 @@ export class Matcher<O, T> {
     (reason, _predicate) => `satisfy this predicate: ${reason}`
   )
 
+  satisfy = this.makeAssertion(
+    (actual, _reason: string, predicate: (value: T) => boolean) => {
+      try {
+        return predicate(actual)
+      } catch (e) {
+        return false
+      }
+    },
+    (reason, _predicate) => `satisfy this predicate: ${reason}`
+  )
+
   equals = this.makeAssertion(
+    (actual, expected: T) => actual === expected,
+    (expected) => `equal ${expected}`
+  )
+
+  equal = this.makeAssertion(
     (actual, expected: T) => actual === expected,
     (expected) => `equal ${expected}`
   )
 
   get exists() {
     return this.assert((actual) => actual !== null && actual !== undefined, `exist`)
+  }
+
+  get exist() {
+    return this.assert((actual) => actual !== null && actual !== undefined, `exist`)
+  }
+
+  get not() {
+    this.reverseLens = combine(this.reverseLens, (value) => !value)
+    this.description = `${this.description} not`
+
+    return this
+  }
+
+  get doesnt() {
+    return this.not
   }
 }

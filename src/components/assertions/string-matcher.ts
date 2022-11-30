@@ -7,10 +7,12 @@ export class StringMatcher<O> extends Matcher<O, string> {
     (actual, prefix: string) => actual.startsWith(prefix),
     (prefix) => `start with "${prefix}"`
   )
+
   endsWith = this.makeAssertion(
     (actual, postfix: string) => actual.endsWith(postfix),
     (postfix) => `end with "${postfix}"`
   )
+
   isOneOf = this.makeAssertion(
     (actual, entries: string[]) => entries.includes(actual),
     (entries) => `be one of ${entries.map((entry) => `"${entry}"`).join(', ')}`
@@ -25,21 +27,32 @@ export class StringMatcher<O> extends Matcher<O, string> {
   asArray(separator: string) {
     return new ArrayMatcher(
       `${this.description} as array separated by ${separator}`,
-      this.zoom((value) => value.split(separator))
+      this.zoom((value) => value.split(separator)),
+      this.reverseLens
     )
   }
 
   split(separator: string) {
     return new ArrayMatcher(
       `${this.description} as array separated by "${separator}"`,
-      this.zoom((value) => value.split(separator))
+      this.zoom((value) => value.split(separator)),
+      this.reverseLens
+    )
+  }
+
+  get length() {
+    return new NumberMatcher(
+      `length of ${this.description}`,
+      this.zoom((value) => value.length),
+      this.reverseLens
     )
   }
 
   get asNumber() {
     return new NumberMatcher(
       this.description,
-      this.zoom((value) => parseFloat(value))
+      this.zoom((value) => parseFloat(value)),
+      this.reverseLens
     )
   }
 }

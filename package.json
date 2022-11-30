@@ -1,10 +1,10 @@
 {
   "name": "@pubnub/tomato",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "CLI mock server for contract testing",
   "main": "dist/index.js",
   "type": "module",
-  "types": "context.d.ts",
+  "types": "types/context.d.ts",
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
