@@ -48,9 +48,7 @@ export interface Context {
   expect: ExpectInterface
   require: (identifier: string) => any
   json: (path: string) => any
-
-  setTimeout: typeof setTimeout
-  performance: typeof performance
+  sleep: (milliseconds: number) => Promise<void>
 }
 
 @injectable()
@@ -187,12 +185,11 @@ export class Runtime {
         trace: (...args: any[]) => logger.trace(format(...args)),
       },
       timetoken: timetoken,
-      setTimeout: setTimeout,
-      performance: performance,
       assert: assert,
       expect: expect,
       require: require,
       json: json,
+      sleep: (milliseconds: number) => new Promise((resolve) => setTimeout(resolve, milliseconds)),
     }
 
     return [createContext(context) as Context, controller]

@@ -11,10 +11,10 @@ export class Instance {
     private logger: Logger
   ) {}
 
-  start() {
+  start(queryParams: { [key: string]: string }) {
     const closure = this.script.getClosure(this.context)
 
-    closure().then(this.handleResolve).catch(this.handleReject)
+    closure(queryParams).then(this.handleResolve).catch(this.handleReject)
     this.logger.info('Script has started.')
   }
 

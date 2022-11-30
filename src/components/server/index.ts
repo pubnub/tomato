@@ -85,6 +85,7 @@ export class Server {
     this.server.route<{
       Querystring: {
         __contract__script__: string
+        [key: string]: string
       }
     }>({
       method: 'GET',
@@ -97,14 +98,16 @@ export class Server {
           this.currentInstance = undefined
         }
 
-        if (!request.query.__contract__script__) {
+        const { __contract__script__, ...queryParams } = request.query
+
+        if (!__contract__script__) {
           throw new Error('Missing __contract__script__ query param')
         }
 
-        const script = this.scriptCache.getScript(request.query.__contract__script__)
+        const script = this.scriptCache.getScript(__contract__script__)
 
         if (!script) {
-          throw new Error(`Cannot find a script named "${request.query.__contract__script__}"`)
+          throw new Error(`Cannot find a script named "${__contract__script__}"`)
         }
 
         this.clearServerState()
@@ -116,10 +119,10 @@ export class Server {
           script,
           context,
           controller,
-          this.logger.child({ module: 'script', script: script.name })
+          this.logger.child({ module: 'script', script: script.name }, { level: undefined })
         )
 
-        this.currentInstance.start()
+        this.currentInstance.start(queryParams)
 
         return { ok: true }
       },

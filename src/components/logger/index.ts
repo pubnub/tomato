@@ -59,6 +59,10 @@ export class Logger {
   }
 
   child(mixin: Record<string, any>, options: Partial<LoggerOptions> = {}) {
+    if ((options.level as unknown) === '') {
+      options.level = this.options.level
+    }
+
     return new Logger({
       ...this.options,
       ...options,
