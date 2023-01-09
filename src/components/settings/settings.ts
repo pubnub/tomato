@@ -1,4 +1,6 @@
 import { deepmerge } from 'deepmerge-ts'
+import { FileSystem } from '../file-system.js'
+import { Logger } from '../logger/index.js'
 
 import { LogLevel, stringToLevel } from '../logger/log-level.js'
 import { SettingsFile } from './provider.js'
@@ -8,6 +10,11 @@ export interface ServerSettings {
 
   showDetails: boolean
   enableMetaApi: boolean
+
+  https: boolean
+
+  key: string | undefined
+  cert: string | undefined
 }
 
 const verbosityLevels = ['info', 'debug', 'trace']
@@ -47,6 +54,9 @@ export class Settings {
       level: stringToLevel(settings.server?.level ?? 'info'),
       showDetails: settings.server?.showDetails ?? false,
       enableMetaApi: settings.server?.enableMetaApi ?? false,
+      https: settings.server?.https ?? false,
+      key: settings.server?.key,
+      cert: settings.server?.cert,
     }
 
     this.watch = settings.watch ?? false
