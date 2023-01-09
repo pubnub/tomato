@@ -1,6 +1,7 @@
-import Fastify, { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
-
 import { inject, singleton } from 'tsyringe'
+
+import Fastify, { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
+import type { Http2SecureServer } from 'http2'
 
 import { MockResponse } from '../../interfaces.js'
 import { Deferred } from '../deferred.js'
@@ -11,10 +12,10 @@ import { Instance } from '../runtime/instance.js'
 import { Runtime } from '../runtime/runtime.js'
 import { ScriptCache } from '../runtime/script-cache.js'
 import { Settings } from '../settings/index.js'
+import { CertStore } from '../cert-store.js'
 
-function handleCors(res: FastifyReply) {
+function handleCors(res: any) {
   res.header('Access-Control-Allow-Origin', '*')
-  // res.header('Access-Control-Allow-Methods', ['DELETE', 'GET', 'HEAD', 'PATCH', 'POST', 'PUT', 'OPTIONS', 'SEARCH', 'TRACE'].join(','))
   res.header('Access-Control-Allow-Headers', '*')
 }
 
@@ -32,8 +33,6 @@ export interface ServerState {
 
 @singleton()
 export class Server {
-  server: FastifyInstance
-
   currentInstance?: Instance
   state: ServerState = {
     expectations: {
@@ -61,17 +60,31 @@ export class Server {
     }
   }
 
+  server: FastifyInstance | FastifyInstance<Http2SecureServer>
+
   constructor(
     @inject('ServerLogger') private logger: Logger,
     private settings: Settings,
     private runtime: Runtime,
     private scriptCache: ScriptCache,
-    private prism: Prism
+    private prism: Prism,
+    private certStore: CertStore
   ) {
-    // TODO: fix fastify shitty logging
-    this.server = Fastify({
-      logger: logger.child({ module: 'http' }, { level: settings.server.level }),
-    })
+    if (settings.server.https) {
+      this.server = Fastify({
+        logger: logger.child({ module: 'http' }, { level: settings.server.level }),
+        http2: true,
+        https: {
+          allowHTTP1: true, // fallback support for HTTP1
+          key: this.certStore.key?.contents,
+          cert: this.certStore.cert?.contents,
+        },
+      })
+    } else {
+      this.server = Fastify({
+        logger: logger.child({ module: 'http' }, { level: settings.server.level }),
+      })
+    }
 
     this.server.setErrorHandler((error, request, reply) => {
       this.logger.error(error)

@@ -1,7 +1,8 @@
 import { container } from 'tsyringe'
-import { TypeScriptCompiler } from '../components/compiler/typescript.js'
-import { FileSystem } from '../components/file-system.js'
 
+import { Argv } from '../index.js'
+import { CertStore } from '../components/cert-store.js'
+import { FileSystem } from '../components/file-system.js'
 import { Logger } from '../components/logger/index.js'
 import { Prism } from '../components/prism.js'
 import { Runtime } from '../components/runtime/runtime.js'
@@ -9,9 +10,9 @@ import { ScriptCache } from '../components/runtime/script-cache.js'
 import { Server } from '../components/server/index.js'
 import { Settings } from '../components/settings/index.js'
 import { SettingsProvider } from '../components/settings/provider.js'
-import { Argv } from '../index.js'
+import { TypeScriptCompiler } from '../components/compiler/typescript.js'
 
-const VERSION = '1.6.0'
+const VERSION = '1.7.0'
 
 export async function serve(argv: Argv) {
   try {
@@ -22,6 +23,13 @@ export async function serve(argv: Argv) {
     const logger = new Logger({ level: settings.level })
 
     logger.info('Hello Tomato v%s', VERSION)
+
+    container.registerInstance('CertStoreLogger', logger.child({ module: 'certs' }))
+    const certStore = container.resolve(CertStore)
+
+    if (settings.server.https) {
+      await certStore.loadCertificates()
+    }
 
     container.resolve(FileSystem)
     container.register('Compiler', TypeScriptCompiler)
@@ -44,7 +52,7 @@ export async function serve(argv: Argv) {
 
     await server.start()
   } catch (e) {
-    console.error(`A fatal error has occured and Tomato has to exit.\n${e}`)
+    console.error(`A fatal error has occured and Tomato has to exit:\n\t${e}`)
     process.exit(1)
   }
 }

@@ -20,6 +20,11 @@ export interface SettingsFile {
 
     showDetails?: boolean
     enableMetaApi?: boolean
+
+    https?: boolean
+
+    key?: string
+    cert?: string
   }
 
   watch?: boolean
@@ -33,7 +38,9 @@ export class SettingsProvider {
     try {
       const settingsFile = await this.fs.read('./toma.toml')
       const settingsObject: SettingsFile = parse(settingsFile.contents)
-      return new Settings(settingsObject, argv)
+      const settings = new Settings(settingsObject, argv)
+
+      return settings
     } catch (e) {
       return new Settings(argv)
     }
