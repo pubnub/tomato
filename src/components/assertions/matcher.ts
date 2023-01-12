@@ -9,11 +9,19 @@ export function combine<A, B, C>(first: Lens<A, B>, second: Lens<B, C>): Lens<A,
 }
 
 export class Matcher<O, T> {
+  private _constructor: typeof Matcher<O, T>
+
   constructor(
     protected description: string,
     protected lens: Lens<O, T>,
     protected reverseLens: Lens<boolean, boolean> = (result) => result
-  ) {}
+  ) {
+    this._constructor = new.target
+  }
+
+  protected copy(description: string, lens: Lens<O, T>, reverseLens: Lens<boolean, boolean>): this {
+    return new this._constructor(description, lens, reverseLens) as this
+  }
 
   protected zoom<V>(lens: Lens<T, V>): Lens<O, V> {
     return combine(this.lens, lens)
@@ -88,14 +96,15 @@ export class Matcher<O, T> {
     return this.assert((actual) => actual !== null && actual !== undefined, `exist`)
   }
 
-  get not() {
-    this.reverseLens = combine(this.reverseLens, (value) => !value)
-    this.description = `${this.description} not`
-
-    return this
+  get not(): this {
+    return this.copy(
+      `${this.description} not`,
+      this.lens,
+      combine(this.reverseLens, (value) => !value)
+    )
   }
 
-  get doesnt() {
+  get doesnt(): this {
     return this.not
   }
 }
