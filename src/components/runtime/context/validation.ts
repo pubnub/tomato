@@ -14,5 +14,3 @@ export const assert = {
     body: new UnknownMatcher<MockRequest>('body', (req) => req.body),
   },
 }
-
-assert.request.$query.doesnt.have('lmao')
