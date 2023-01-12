@@ -13,6 +13,15 @@ export class RecordMatcher<O> extends Matcher<O, Record<string, any>> {
     )
   }
 
+  has = this.makeAssertion(
+    (actual, key: string) => {
+      return key in actual
+    },
+    (key) => `contain key "${key}"`
+  )
+
+  have = this.has
+
   deepEquals = this.makeAssertion(
     (actual, other: Record<string, any>) => {
       try {
