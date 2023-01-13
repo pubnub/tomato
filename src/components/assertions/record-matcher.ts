@@ -1,7 +1,7 @@
 import { Lens, Matcher } from './matcher.js'
 import { UnknownMatcher } from './unknown-matcher.js'
 
-import { deepStrictEqual } from 'assert'
+import isEqual from 'lodash.isequal'
 import { StringMatcher } from './string-matcher.js'
 
 export class RecordMatcher<O> extends Matcher<O, Record<string, any>> {
@@ -24,13 +24,7 @@ export class RecordMatcher<O> extends Matcher<O, Record<string, any>> {
 
   deepEquals = this.makeAssertion(
     (actual, other: Record<string, any>) => {
-      try {
-        deepStrictEqual(actual, other)
-
-        return true
-      } catch (e) {
-        return false
-      }
+      return isEqual(actual, other)
     },
     (other) => `deep equal ${JSON.stringify(other)}`
   )
