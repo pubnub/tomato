@@ -1,5 +1,4 @@
 import { singleton } from 'tsyringe'
-
 import { parse } from 'toml'
 
 import { FileSystem } from '../file-system.js'

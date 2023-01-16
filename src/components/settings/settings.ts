@@ -1,6 +1,4 @@
 import { deepmerge } from 'deepmerge-ts'
-import { FileSystem } from '../file-system.js'
-import { Logger } from '../logger/index.js'
 
 import { LogLevel, stringToLevel } from '../logger/log-level.js'
 import { SettingsFile } from './provider.js'

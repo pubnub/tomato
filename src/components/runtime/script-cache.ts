@@ -70,21 +70,27 @@ export class ScriptCache {
 
     if (this.settings.watch) {
       this.logger.info('Watching for changes...')
-      const watcher = await this.fs.watchFiles(this.settings.contractsGlobs)
-
-      const reload = async (path: string) => {
-        await this.reloadScript(path, runtime)
-      }
-
-      watcher.on('change', reload)
-      watcher.on('add', reload)
-      watcher.on('unlink', (path) => {
-        this.scripts.forEach((script) => {
-          if (script.source.path === path) {
-            this.scripts.delete(script.name)
-          }
-        })
-      })
+      this.watchScripts(this.settings.contractsGlobs, runtime)
     }
+  }
+
+  async watchScripts(glob: string | string[], runtime: Runtime) {
+    const watcher = await this.fs.watchFiles(glob)
+
+    const reloadScript = async (path: string) => {
+      await this.reloadScript(path, runtime)
+    }
+
+    watcher.on('change', reloadScript)
+    watcher.on('add', reloadScript)
+    watcher.on('unlink', (path) => {
+      this.scripts.forEach((script) => {
+        if (script.source.path === path) {
+          this.scripts.delete(script.name)
+        }
+      })
+    })
+
+    return () => watcher.close()
   }
 }
