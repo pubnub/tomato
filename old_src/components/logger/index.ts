@@ -1,12 +1,9 @@
-import { register } from '#di'
-
 import { format } from 'node:util'
 import { serializeError } from 'serialize-error'
 
-import { levelToString, LogLevel, stringToLevel } from './log-level'
-import { isError } from './utils'
-import { formatter } from './formatter'
-import { Logger } from '#type/logger'
+import { levelToString, LogLevel, stringToLevel } from './log-level.js'
+import { isError } from './utils.js'
+import { formatter } from './formatter.js'
 
 export type Serializer<I, O> = (data: I) => Record<string, O>
 export type LogMethod = (data: any, ...params: any[]) => void
@@ -21,10 +18,7 @@ export interface LoggerOptions {
   printer: (data: string) => void
 }
 
-@register({
-  as: Logger,
-})
-export default class PineLogger implements Logger<LoggerOptions> {
+export class Logger {
   static defaults: LoggerOptions = {
     level: LogLevel.info,
 
@@ -53,7 +47,7 @@ export default class PineLogger implements Logger<LoggerOptions> {
   }
 
   constructor(options: Partial<LoggerOptions> = {}) {
-    this.options = Object.assign({}, PineLogger.defaults, options)
+    this.options = Object.assign({}, Logger.defaults, options)
   }
 
   get level(): string {
@@ -69,7 +63,7 @@ export default class PineLogger implements Logger<LoggerOptions> {
       options.level = this.options.level
     }
 
-    return new PineLogger({
+    return new Logger({
       ...this.options,
       ...options,
       mixin: {

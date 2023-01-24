@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "module": "ESNext",
-    "target": "ES2020",
+    "target": "ESNext",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "outDir": "dist",
@@ -9,7 +9,14 @@
     "emitDecoratorMetadata": true,
     "declaration": true,
     "strict": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "paths": {
+      "#di": ["src/di/index.ts"],
+      "#utils": ["./src/utils.ts"],
+      "#type/*": ["./src/types/*"],
+      "#component/*": ["./src/components/*"]
+    }
   },
   "include": ["./src"],
   "exclude": ["./context.d.ts"]

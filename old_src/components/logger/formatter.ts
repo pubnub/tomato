@@ -1,7 +1,7 @@
 import c from 'ansi-colors'
 
-import { formatTimestamp, numberExists, stringExists } from './utils'
-import { colorMap, levelToString } from './log-level'
+import { formatTimestamp, numberExists, stringExists } from './utils.js'
+import { colorMap, levelToString } from './log-level.js'
 
 export function formatter(data: Record<string, unknown>): string {
   let line = ''
