@@ -51,9 +51,19 @@ export class Matcher<O, T> {
 
   protected makeAssertion<A extends any[]>(
     predicate: (actual: T, ...args: A) => boolean,
-    message: (...args: A) => string
+    message: (...args: A) => string,
+    cannotBeNullOrUndefined: boolean = false
   ) {
-    return (...args: A) => this.assert((actual) => predicate(actual, ...args), message(...args))
+    return (...args: A) =>
+      this.assert((actual) => {
+        if (cannotBeNullOrUndefined) {
+          if (actual === null || actual === undefined) {
+            throw new AssertionError(`Expected ${this.description} to not be null or undefined`)
+          }
+        }
+
+        return predicate(actual, ...args)
+      }, message(...args))
   }
 
   satisfies = this.makeAssertion(

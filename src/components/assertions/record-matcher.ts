@@ -17,7 +17,8 @@ export class RecordMatcher<O> extends Matcher<O, Record<string, any>> {
     (actual, key: string) => {
       return key in actual
     },
-    (key) => `contain key "${key}"`
+    (key) => `contain key "${key}"`,
+    true
   )
 
   have = this.has

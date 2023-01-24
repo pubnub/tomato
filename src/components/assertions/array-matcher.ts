@@ -4,7 +4,8 @@ import { UnknownMatcher } from './unknown-matcher.js'
 export class ArrayMatcher<O> extends Matcher<O, any[]> {
   contains = this.makeAssertion(
     (actual, entries: any[]) => entries.every((element) => actual.includes(element)),
-    (entries) => `contain the following elements: ${JSON.stringify(entries)}`
+    (entries) => `contain the following elements: ${JSON.stringify(entries)}`,
+    true
   )
 
   nth(index: number) {
