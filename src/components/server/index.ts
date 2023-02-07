@@ -1,6 +1,8 @@
 import { inject, singleton } from 'tsyringe'
 
 import Fastify, { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
+import FastifyMultipart from '@fastify/multipart'
+
 import type { Http2SecureServer } from 'http2'
 
 import { MockResponse } from '../../interfaces.js'
@@ -60,7 +62,7 @@ export class Server {
     }
   }
 
-  server: FastifyInstance | FastifyInstance<Http2SecureServer>
+  server: FastifyInstance
 
   constructor(
     @inject('ServerLogger') private logger: Logger,
@@ -79,12 +81,14 @@ export class Server {
           key: this.certStore.key?.contents,
           cert: this.certStore.cert?.contents,
         },
-      })
+      }) as unknown as FastifyInstance
     } else {
       this.server = Fastify({
         logger: logger.child({ module: 'http' }, { level: settings.server.level }),
       })
     }
+
+    this.server.register(FastifyMultipart, { attachFieldsToBody: 'keyValues' })
 
     this.server.setErrorHandler((error, request, reply) => {
       this.logger.error(error)

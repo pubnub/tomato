@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "@fastify/cors": "^8.2.0",
+    "@fastify/multipart": "^7.4.0",
     "@stoplight/prism-cli": "^4.10.3",
     "@stoplight/prism-http": "^4.10.3",
     "ansi-colors": "^4.1.3",
