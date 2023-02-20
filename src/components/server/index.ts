@@ -227,7 +227,11 @@ export class Server {
 
         responseDeferred.dispose()
 
-        return JSON.stringify(response.body ?? {})
+        if (response.body) {
+          return JSON.stringify(response.body)
+        }
+
+        return
       },
     })
   }
