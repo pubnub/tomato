@@ -17,6 +17,7 @@ type AssertInterface = {
     $query: RecordMatcher<MockRequest>
     $headers: RecordMatcher<MockRequest>
     body: UnknownMatcher<MockRequest>
+    rawUrl: StringMatcher<MockRequest>
   }
 }
 

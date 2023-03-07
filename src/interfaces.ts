@@ -11,6 +11,7 @@ export interface MockRequest {
   url: {
     path: string
     query: Record<string, string>
+    raw: string
   }
 
   headers: Record<string, string>
