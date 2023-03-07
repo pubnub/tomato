@@ -12,5 +12,6 @@ export const assert = {
     $headers: new RecordMatcher<MockRequest>('headers', (req) => req.headers),
     headers: new RecordProxyMatcher<MockRequest>('headers', (req) => req.headers),
     body: new UnknownMatcher<MockRequest>('body', (req) => req.body),
+    rawUrl: new StringMatcher<MockRequest>('URL', (req) => req.url.raw),
   },
 }

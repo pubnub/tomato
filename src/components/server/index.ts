@@ -1,9 +1,8 @@
 import { inject, singleton } from 'tsyringe'
 
-import Fastify, { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
+import Fastify, { FastifyInstance } from 'fastify'
 import FastifyMultipart from '@fastify/multipart'
-
-import type { Http2SecureServer } from 'http2'
+import FastifyCompress from '@fastify/compress'
 
 import { MockResponse } from '../../interfaces.js'
 import { Deferred } from '../deferred.js'
@@ -87,8 +86,11 @@ export class Server {
         logger: logger.child({ module: 'http' }, { level: settings.server.level }),
       })
     }
+  }
 
-    this.server.register(FastifyMultipart, { attachFieldsToBody: 'keyValues' })
+  async start() {
+    await this.server.register(FastifyCompress, { global: true })
+    await this.server.register(FastifyMultipart, { attachFieldsToBody: 'keyValues' })
 
     this.server.setErrorHandler((error, request, reply) => {
       this.logger.error(error)
@@ -191,6 +193,7 @@ export class Server {
           url: {
             path: path.pathname,
             query: request.query as Record<string, any>,
+            raw: request.url,
           },
           headers: request.headers as Record<string, string>,
           body: request.body,
@@ -234,9 +237,7 @@ export class Server {
         return
       },
     })
-  }
 
-  async start() {
     await this.server.listen({ port: this.settings.port })
   }
 }

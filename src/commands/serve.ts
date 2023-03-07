@@ -12,7 +12,7 @@ import { Settings } from '../components/settings/index.js'
 import { SettingsProvider } from '../components/settings/provider.js'
 import { TypeScriptCompiler } from '../components/compiler/typescript.js'
 
-const VERSION = '1.10.2'
+const VERSION = '1.11.0'
 
 export async function serve(argv: Argv) {
   try {
