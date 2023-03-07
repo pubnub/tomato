@@ -2,9 +2,7 @@ import { inject, singleton } from 'tsyringe'
 
 import Fastify, { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import FastifyMultipart from '@fastify/multipart'
-
-import type { Http2SecureServer } from 'http2'
-import * as zlib from 'zlib'
+import FastifyCompress from '@fastify/compress'
 
 import { MockResponse } from '../../interfaces.js'
 import { Deferred } from '../deferred.js'
@@ -88,25 +86,12 @@ export class Server {
         logger: logger.child({ module: 'http' }, { level: settings.server.level }),
       })
     }
+  }
+
+  async start() {
 
     this.server.register(FastifyMultipart, { attachFieldsToBody: 'keyValues' })
-
-    this.server.addContentTypeParser('application/json', { parseAs: 'buffer' }, function(request, rawBody, done) {
-      let processingError: Error | null = null
-      let processedBody = rawBody
-
-      if (request.headers['content-encoding'] && request.headers['content-encoding'] === 'gzip') {
-        processedBody = zlib.gunzipSync(rawBody)
-      }
-
-      try {
-        processedBody = JSON.parse(processedBody.toString('utf-8'))
-      } catch (e) {
-        processingError = e as Error
-      }
-
-      done(processingError, processedBody)
-    })
+    await this.server.register(FastifyCompress)
 
     this.server.setErrorHandler((error, request, reply) => {
       this.logger.error(error)
@@ -252,9 +237,7 @@ export class Server {
         return
       },
     })
-  }
 
-  async start() {
     await this.server.listen({ port: this.settings.port })
   }
 }
