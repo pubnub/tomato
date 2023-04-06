@@ -100,6 +100,9 @@ export class Runtime {
         async respond(response: MockResponse) {
           return respond.resolve(response)
         },
+        async abort() {
+          return respond.reject(new Error('request aborted'))
+        },
       }
     }
 

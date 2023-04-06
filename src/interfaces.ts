@@ -34,4 +34,5 @@ export interface ExpectParams {
 
 export type RespondInterface = {
   respond(response: MockResponse): Promise<void>
+  abort(): Promise<void>
 } & MockRequest
