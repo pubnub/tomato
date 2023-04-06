@@ -218,23 +218,26 @@ export class Server {
 
         this.currentInstance.controller.push({ value: mockRequest, respond: responseDeferred })
 
-        const response = await responseDeferred.promise
+        try {
+          const response = await responseDeferred.promise
 
-        if (response.status) {
-          reply.status(response.status)
+          if (response.status) {
+            reply.status(response.status)
+          }
+
+          if (response.headers) {
+            reply.headers(response.headers)
+          }
+
+          responseDeferred.dispose()
+
+          if (response.body) {
+            return JSON.stringify(response.body)
+          }
+        } catch (e) {
+          reply.hijack().raw.destroy()
+          return
         }
-
-        if (response.headers) {
-          reply.headers(response.headers)
-        }
-
-        responseDeferred.dispose()
-
-        if (response.body) {
-          return JSON.stringify(response.body)
-        }
-
-        return
       },
     })
 
