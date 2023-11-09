@@ -8,15 +8,15 @@ import { Prism } from '../components/prism.js'
 import { Runtime } from '../components/runtime/runtime.js'
 import { ScriptCache } from '../components/runtime/script-cache.js'
 import { Server } from '../components/server/index.js'
-import { Settings } from '../components/settings/index.js'
+import { Settings, SettingsFile } from '../components/settings/index.js'
 import { SettingsProvider } from '../components/settings/provider.js'
 import { TypeScriptCompiler } from '../components/compiler/typescript.js'
 
-const VERSION = '1.12.0'
+const VERSION = '1.13.0'
 
 export async function serve(argv: Argv) {
   try {
-    const settings = await container.resolve(SettingsProvider).load(argv)
+    const settings = await container.resolve(SettingsProvider).load(argv as SettingsFile)
 
     container.registerInstance(Settings, settings)
 

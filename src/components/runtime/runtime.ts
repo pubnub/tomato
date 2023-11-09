@@ -4,7 +4,14 @@ import { createRequire } from 'node:module'
 import { format } from 'node:util'
 import { createContext } from 'node:vm'
 
-import { ExpectInterface, ExpectParams, MockRequest, MockResponse } from '../../interfaces.js'
+import {
+  ExpectAllInterface,
+  ExpectAllParams,
+  ExpectInterface,
+  ExpectParams,
+  MockRequest,
+  MockResponse,
+} from '../../interfaces.js'
 import { ContinuationController } from './continuation.js'
 import { Logger } from '../logger/index.js'
 import { Settings } from '../settings/index.js'
@@ -46,6 +53,7 @@ export interface Context {
   assert: typeof assert
 
   expect: ExpectInterface
+  expectAll: ExpectAllInterface
   require: (identifier: string) => any
   json: (path: string) => any
   sleep: (milliseconds: number) => Promise<void>
@@ -57,19 +65,60 @@ export class Runtime {
     @inject('RuntimeLogger') private logger: Logger,
     private settings: Settings,
     private moduleCache: ModuleCache,
-    private fs: FileSystem
+    private fs: FileSystem,
   ) {}
 
   createContext(
     source: File,
     serverState?: ServerState,
-    script?: Script
+    script?: Script,
   ): [Context, ContinuationController<Continuation>] {
     const logger = this.logger.child({ script: script?.name ?? source.filename })
     const controller = new ContinuationController<Continuation>()
 
-    const expect = async ({ description, validations }: ExpectParams) => {
-      const { value, respond } = await controller.pull()
+    const pullContinuations = async (continuationsCount?: number, timeout?: number) => {
+      let continuationPromises: Promise<Continuation>[] = []
+      let continuations: Continuation[] = []
+      continuationsCount = continuationsCount ?? 1
+      timeout = timeout ?? 30000
+
+      while (continuationPromises.length < continuationsCount) {
+        continuationPromises.push(
+          controller.pull().then((value) => {
+            continuations.push(value)
+            return value
+          }),
+        )
+      }
+
+      let timeoutToken: string | number | NodeJS.Timeout | undefined
+      const timeoutPromise: Promise<Continuation[]> = new Promise((resolve) => {
+        timeoutToken = setTimeout(() => resolve([]), timeout)
+      })
+
+      return Promise.race([
+        timeoutPromise,
+        Promise.all(continuationPromises).then(() => clearTimeout(timeoutToken)),
+      ]).then(() => {
+        if (continuations.length !== continuationsCount) {
+          logger.error(
+            `Unable to pull the required number of requests (${continuations.length} from ${continuationsCount} has been received).`,
+          )
+          serverState?.expectations?.failed?.push(`Expected to receive ${continuationsCount} requests.`)
+
+          for (const { respond } of continuations) {
+            respond.reject(new Error('One or more expectations failed.'))
+          }
+
+          throw expectedFailure
+        }
+        return continuations
+      })
+    }
+
+    const validateContinuation = (continuation: Continuation, params: ExpectParams | ExpectAllParams) => {
+      const { value, respond } = continuation
+      const { description, validations } = params
 
       let anyExpectationsFailed = false
       for (const predicate of validations) {
@@ -94,6 +143,51 @@ export class Runtime {
       }
 
       serverState?.expectations?.succeeded?.push(description)
+    }
+
+    const expectAll = async (parameters: ExpectAllParams[], timeout?: number) => {
+      let expectedContinuations = await pullContinuations(parameters.length, timeout)
+
+      expectedContinuations.sort(({ value: valueA }, { value: valueB }) => {
+        for (const { match: matcher } of parameters) {
+          const matchA = matcher(valueA)
+          const matchB = matcher(valueB)
+
+          if (matchA && !matchB) return -1
+          else if (!matchA && matchB) return 1
+        }
+        return 0
+      })
+
+      try {
+        for (let idx = 0; idx < parameters.length; idx++) {
+          validateContinuation(expectedContinuations[idx], parameters[idx])
+        }
+      } catch (e) {
+        for (const { respond } of expectedContinuations) {
+          respond.reject(new Error('One or more expectations failed.'))
+        }
+
+        throw e
+      }
+
+      return expectedContinuations.map(({ value, respond }) => ({
+        ...value,
+        async respond(response: MockResponse) {
+          return respond.resolve(response)
+        },
+        async abort() {
+          return respond.reject(new Error('request aborted'))
+        },
+      }))
+    }
+
+    const expect = async (parameters: ExpectParams, timeout?: number) => {
+      const continuation = (await pullContinuations(1, timeout)).pop()
+      if (!continuation) throw expectedFailure
+      const { value, respond } = continuation
+
+      validateContinuation(continuation, parameters)
 
       return {
         ...value,
@@ -190,6 +284,7 @@ export class Runtime {
       timetoken: timetoken,
       assert: assert,
       expect: expect,
+      expectAll: expectAll,
       require: require,
       json: json,
       sleep: (milliseconds: number) => new Promise((resolve) => setTimeout(resolve, milliseconds)),
