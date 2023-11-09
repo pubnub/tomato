@@ -1,4 +1,9 @@
-import type { ExpectInterface, MockRequest, MockResponse } from '../src/interfaces'
+import type {
+  ExpectAllInterface,
+  ExpectInterface,
+  MockRequest,
+  MockResponse
+} from '../src/interfaces'
 import type { timetoken as _timetoken } from '../src/components/runtime/context/timetoken'
 
 import type { StringMatcher } from '../src/components/assertions/string-matcher'
@@ -23,6 +28,7 @@ type AssertInterface = {
 
 declare global {
   const expect: ExpectInterface
+  const expectAll: ExpectAllInterface
   const timetoken: typeof _timetoken
   const assert: AssertInterface
 
@@ -53,4 +59,5 @@ export type {
   MockRequest,
   MockResponse,
   ExpectInterface,
+  ExpectAllInterface,
 }

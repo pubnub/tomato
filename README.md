@@ -43,8 +43,13 @@ Generates a string timetoken with nanosecond resolution.
 #### `json(path: string)`
 Read and parse a JSON file.
 
-#### `expect({ description: string, validations?: Array<(request: Request) => void>): Promise<Request>`
-Asynchronous function that waits for next request, validates it against an array of `assert` functions and returns an instance of `Request`.
+#### `expect({ description: string, validations?: Array<(request: Request) => void>}, number?): Promise<Request>`
+Asynchronous function that waits for the next request (waits for 30000 milliseconds by default, which can be changed with the last argument) and validates it against an array of `assert` functions before returning an instance of `Request`.
+
+#### `expectAll({ description: string, match: (request: Request) => bool, validations?: Array<(request: Request) => void>}[], number?): Promise<Request[]>`
+Asynchronous function that waits for a list of next requests (waits for 30000 milliseconds by default, which can be changed with the last argument) and validates it against an array of `assert` functions before returning an array of `Request` instances.
+
+This function is useful when a few endpoints can be called simultaneously, and it is unknown which will be accepted first by the mock server.  `match` function will be used to match the validation configuration to the proper request. The returned list of `Request` instances will be ordered in the same order as the passed parameters.
 
 #### `Request.respond({ status: number, headers?: Record<string, string>, body?: any }): Promise<void>`
 Asynchronous function that responds to a request.
