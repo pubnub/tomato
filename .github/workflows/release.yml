@@ -7,8 +7,7 @@ jobs:
   release:
     name: Release @pubnub/tomato
     runs-on:
-      group: Default Larger Runners
-      labels: ubuntu-latest-m
+      group: Default
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
